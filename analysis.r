@@ -1,6 +1,5 @@
 # Analyses
 library(dplyr)
-setwd("/home/lyndsay/docs/contribution")
 
 ejectives <- read.csv("ejectives.csv")
 ejectives$family_id <- as.factor(ejectives$family_id)
@@ -37,14 +36,19 @@ summary(lm(avg_precipitation ~ annual_temp_range, data=ejectives))
 # is there a relationship between temp range and temp? (yes)
 summary(lm(annual_temp_range ~ avg_temp, data=ejectives))
 
-anova1 <- aov(Ejectives ~ family_id + macroarea + elevation:family_id + elevation:macroarea + elevation * avg_temp + elevation * annual_temp_range + elevation * avg_precipitation + avg_precipitation * avg_temp + annual_temp_range * avg_precipitation + annual_temp_range * avg_temp, data=ejectives)
-summary(anova1)
+library(car)
+data.contrasts <- list(family_id = contr.sum, macroarea = contr.sum, elevation = contr.sum, avg_temp = contr.sum, annual_temp = contr.sum, avg_precipitation = contr.sum, avg_temp = contr.sum, annual_temp_range = contr.sum)
+model1 <- lm(Ejectives ~ family_id + macroarea + elevation:family_id + elevation:macroarea + elevation * avg_temp + elevation * annual_temp_range + elevation * avg_precipitation + avg_precipitation * avg_temp + annual_temp_range * avg_precipitation + annual_temp_range * avg_temp, data=ejectives)
+model2 <- lm(Ratios ~ family_id + macroarea + elevation:family_id + elevation:macroarea + elevation * avg_temp + elevation * annual_temp_range + elevation * avg_precipitation + avg_precipitation * avg_temp + annual_temp_range * avg_precipitation + annual_temp_range * avg_temp, data=ejectives)
+model3 <- lm(has_ejectives ~ family_id + macroarea + elevation:family_id + elevation:macroarea + elevation * avg_temp + elevation * annual_temp_range + elevation * avg_precipitation + avg_precipitation * avg_temp + annual_temp_range * avg_precipitation + annual_temp_range * avg_temp, data=ejectives)
 
-anova2 <- aov(Ratios ~ family_id + macroarea + elevation:family_id + elevation:macroarea + elevation * avg_temp + elevation * annual_temp_range + elevation * avg_precipitation + avg_precipitation * avg_temp + annual_temp_range * avg_precipitation + annual_temp_range * avg_temp, data=ejectives)
-summary(anova2)
+ancova1 <- Anova(model1, contrasts=data.contrasts, type=3, singular.ok=TRUE)
+ancova2 <- Anova(model2, contrasts=data.contrasts, type=3, singular.ok=TRUE)
+ancova3 <- Anova(model3, contrasts=data.contrasts, type=3, singular.ok=TRUE)
 
-anova3 <- aov(has_ejectives ~ family_id + macroarea + elevation:family_id + elevation:macroarea + elevation * avg_temp + elevation * annual_temp_range + elevation * avg_precipitation + avg_precipitation * avg_temp + annual_temp_range * avg_precipitation + annual_temp_range * avg_temp, data=ejectives)
-summary(anova3)
+ancova1
+ancova2
+ancova3
 
 # Plots
 library(ggplot2)
